@@ -2,3 +2,5 @@
 * text=auto eol=lf
 *.pmd linguist-detectable=true
 **/*.pmd linguist-language=xml
+*.inf linguist-detectable=true
+**/*.ing linguist-language=csv
