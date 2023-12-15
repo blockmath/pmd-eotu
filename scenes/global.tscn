@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://b6i83iip0drde"]
+
+[ext_resource type="PackedScene" uid="uid://m536g6fsgoa8" path="res://scenes/objects/textbox.tscn" id="1_wj78e"]
+[ext_resource type="PackedScene" uid="uid://rl6p3mb6mjon" path="res://scenes/objects/data_manager.tscn" id="2_38tlb"]
+
+[node name="Node" type="Node"]
+
+[node name="UI TextBox" parent="." instance=ExtResource("1_wj78e")]
+
+[node name="DataManager" parent="." instance=ExtResource("2_38tlb")]
+
+[node name="Camera" type="Camera3D" parent="."]
+
+[node name="chara-root" type="Node3D" parent="."]
+
+[node name="player-root" type="Node3D" parent="."]
+
+[node name="poke-root" type="Node3D" parent="."]

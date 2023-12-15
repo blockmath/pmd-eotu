@@ -1,0 +1,177 @@
+<trigger load map beach>
+<trigger spawn chara partner>
+<move chara partner tp 0 0 0>
+<facing chara partner UP>
+<anim chara partner Idle>
+<trigger spawn chara player>
+<move chara player tp -20 0 0>
+<facing chara player RIGHT>
+<anim chara player Laying>
+<trigger fade in>
+<wait seconds 2>
+<trigger textbox active>
+<portrait right partner inspired>
+Wow!
+<await>
+It's so beautiful!
+<await>
+<portrait right partner normal>
+I'm glad I came out here.
+<await>
+<trigger textbox inactive>
+<wait seconds 5>
+<facing chara partner UP_LEFT>
+<wait frames 5>
+<facing chara partner LEFT>
+<trigger exclaim partner>
+<trigger textbox active>
+<portrait right partner surprised>
+Someone's over there!
+<await>
+<trigger textbox inactive>
+<async>
+	<camera pan -19 0 4>
+	<move chara partner walk -18 0 4>
+</async>
+<wait seconds 5>
+<trigger textbox active>
+<portrait right partner worried>
+Are you alright?
+<await>
+<branch plswakeup>
+<label wakeup>
+<portrait left player pain>
+...
+<await>
+<label plswakeup>
+<portrait right partner worried>
+Please, wake up...
+<await>
+<choicer>
+	<choice wakeup "...">
+	<choice whereami "(Where am i?)">
+	<choice whoareyou "(Who are you?)">
+</choicer>
+<label whereami>
+<portrait left player pain>
+(Where am i?)
+<await>
+(Is this heaven?)
+<await>
+<trigger increment global wonder>
+<branch angel>
+<label whoareyou>
+<portrait left player pain>
+(Who are you?)
+<await>
+<label angel>
+(Are you an angel?)
+<await>
+<trigger increment global wonder>
+<portrait right partner surprised>
+Ah!
+<await>
+<trigger textbox inactive>
+<anim chara player Idle>
+<wait seconds 1>
+<trigger textbox active>
+<portrait right partner happy>
+You're awake!
+<await>
+<portrait right partner normal>
+I'm 
+<name partner>
+.
+<await>
+<portrait right partner worried>
+Who are you?
+<n>
+I've never seen you around before.
+<await>
+<choicer>
+	<choice whoami1 "...">
+	<choice whoami2 "I'm a human!">
+	<choice whoami3 "I'm not sure.">
+</choicer>
+<label whoami1>
+<portrait left player worried>
+...
+<await>
+<portrait right partner worried>
+...
+<await>
+You aren't very talkative, are you?
+<await>
+<trigger decrement global socialize>
+<branch lookalike>
+<label whoami2>
+<portrait left player normal>
+I'm a human!
+<await>
+<portrait right partner worried>
+Huh? You say you're a human?
+<await>
+<trigger increment global determination>
+<branch lookalike>
+<label whoami3>
+<portrait left player worried>
+I'm not sure.
+<await>
+<portrait right partner worried>
+You're not sure?
+<await>
+<trigger decrement global determination>
+<branch lookalike>
+<label lookalike>
+<portrait right partner worried>
+But you look like...
+<await>
+<portrait right partner normal>
+A normal 
+<name player>
+, in every way!
+<await>
+<trigger textbox inactive>
+<trigger exclaim player>
+<anim chara player Rotate>
+<wait seconds 1>
+<trigger exclaim player>
+<trigger textbox active>
+<portrait left player surprised>
+(... It's true...)
+<await>
+(I have turned into a 
+<name player>
+!)
+<await>
+<trigger textbox inactive>
+<wait seconds 1>
+<trigger textbox active>
+<portrait right partner worried>
+You're kinda weird...
+<await>
+What's your name?
+<await>
+<portrait left player surprised>
+(Oh right! My name! It's...)
+<await>
+<entry global name player>
+<portrait left player worried>
+(
+<name player>
+...)
+<await>
+<portrait left player determined>
+<name player>
+. I'm sure of it.
+<await>
+<portrait right partner normal>
+<name player>
+...
+<await>
+<portrait right partner happy>
+It's nice to meet you, 
+<name player>
+!
+<await>
+

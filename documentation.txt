@@ -1,0 +1,6 @@
+.pmd files describe cutscenes.
+
+There are 3 types of actors:
+Characters (chara). Used in cutscenes or as NPCs. Never used in dungeons unless there's a very good reason for it.
+Players (pchar). Used in free-walk environments like town or guild. Absolutely never used in dungeons.
+Pokemon (pkmn). Used in dungeons.
