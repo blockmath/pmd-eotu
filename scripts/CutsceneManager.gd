@@ -71,7 +71,7 @@ func playCutscene(cutName : String):
 func playCutsceneAsync(cutName : String):
 	cutsceneName = cutName;
 	# Preloading cutscene
-	var file = FileAccess.get_file_as_string("dialog/english/" + cutName + ".pmd"); # load cutscene from file
+	var file = FileAccess.get_file_as_string("dialog/" + DataManager.locale + "/" + cutName + ".pmd"); # load cutscene from file
 	cutscene = file.split("\n"); # Split on newlines
 	for lineIndex in range(len(cutscene)): # Strip leading whitespace
 		while cutscene[lineIndex].begins_with(' ') or cutscene[lineIndex].begins_with('\t'):
@@ -133,7 +133,7 @@ func runDialog(line : String):
 				cutsceneIndex = cutscene.find("<label " + branchTarget + ">") - 1;
 			["label", var _label]:
 				pass
-			["camera", "pan", var dx, var dy, var dt]:
+			["camera", "move", var dx, var dy, "seconds", var dt]:
 				var dt_frames : float = dt * Engine.get_frames_per_second();
 				for i in range(int(dt_frames)):
 					camera.transform = camera.transform.translated(Vector3(float(dx) / dt_frames, 0, float(dy) / dt_frames));
@@ -142,27 +142,22 @@ func runDialog(line : String):
 				var dir : Classes.Direction = Classes.Direction.find_key(direction);
 				var actor : Node3D = actors[type].find_node(actorName);
 				actor.animDir = dir;
-			["move", var type, var actorName, var how, var dx, var dy, var dt]:
+			["move", var type, var actorName, var dx, var dy, "seconds", var dt]:
 				var actor : Node3D = actors[type].find_node(actorName);
-				match how:
-					"tp":
-						actor.transform = actor.transform.translated(Vector3(float(dx), 0, float(dy)));
-					"walk":
-						var storedAnim : String = actor.animID;
-						actor.setAnimation("Walk");
-						var dt_frames : float = dt * Engine.get_frames_per_second();
-						for i in range(int(dt_frames)):
-							actor.transform = actor.transform.translated(Vector3(float(dx) / dt_frames, 0, float(dy) / dt_frames));
-							await nextFrame;
-						actor.setAnimation(storedAnim);
-					_:
-						print_debug("There was an error in the cutscene " + cutsceneName + ": Unknown move type " + how);
+				var storedAnim : String = actor.animID;
+				actor.setAnimation("Walk");
+				var dt_frames : float = dt * Engine.get_frames_per_second();
+				for i in range(int(dt_frames)):
+					actor.transform = actor.transform.translated(Vector3(float(dx) / dt_frames, 0, float(dy) / dt_frames));
+					await nextFrame;
+				actor.transform = actor.transform.translated(Vector3(float(dx), 0, float(dy)));
+				actor.setAnimation(storedAnim);
 			["name", var chara]:
 				var text : String;
 				if chara == "player":
-					text = DataManager.playerName;
+					text = DataManager.globals["playerName"];
 				elif chara == "partner":
-					text = DataManager.partnerName;
+					text = DataManager.globals["partnerName"];
 				else:
 					text = DataManager.pkmnNames[DataManager.lookup("pkmn-id", chara)];
 				textboxLabel.append_text("[color=yellow]");
@@ -171,6 +166,10 @@ func runDialog(line : String):
 					if not Input.is_action_pressed("B"):
 						await nextFrame;
 				textboxLabel.append_text("[color=white]");
+			["n"]:
+				textboxLabel.append_text("\n");
+			["gender", var chara, var case]:
+				textboxLabel.append_text(DataManager.pronouns[DataManager.lookup("gender", chara)][case]);
 			["wait", "frames", var nframes]:
 				for i in range(nframes):
 					await nextFrame;
@@ -180,17 +179,23 @@ func runDialog(line : String):
 					await nextFrame;
 			["trigger", "textbox", var arg1]:
 				textboxObj.visible = (arg1 != "inactive");
+			["trigger", "increment", "global", var variable]:
+				DataManager.globals[variable] += 1;
+			["trigger", "decrement", "global", var variable]:
+				DataManager.globals[variable] -= 1;
 			["trigger", "load", "map", var mapName]:
 				get_tree().change_scene_to_file("res://scenes/scenes/%s.tscn".format(mapName));
 				colorRect.color.a = 255;
 			["trigger", "fade", "in"]:
-				for i in range(256):
+				for i in range(0, 256, 4):
 					colorRect.color.a = 255 - i;
 					await nextFrame;
+				colorRect.color.a = 0;
 			["trigger", "fade", "out"]:
-				for i in range(256):
+				for i in range(0, 256, 4):
 					colorRect.color.a = i;
 					await nextFrame;
+				colorRect.color.a = 255;
 			_:
 				print_debug("There was an error in the cutscene " + cutsceneName + ": Unknown command " + line);
 	else:

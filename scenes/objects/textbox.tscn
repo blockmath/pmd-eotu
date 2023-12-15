@@ -4,10 +4,10 @@
 [ext_resource type="Texture2D" uid="uid://daj4xt40nv50" path="res://sprites/ui/text-box.png" id="2_t3siu"]
 [ext_resource type="FontFile" uid="uid://cfmit71j0p4ro" path="res://sprites/ui/Inconsolata-Bold.ttf" id="3_1pcfa"]
 [ext_resource type="Texture2D" uid="uid://bc8bffj2cqekf" path="res://sprites/ui/portrait-box.png" id="3_5n3jo"]
-[ext_resource type="Texture2D" uid="uid://c2fkqgad0jshk" path="res://portraits/pokemon/0001.png" id="4_ps73o"]
+[ext_resource type="Texture2D" uid="uid://6818p8w6jd6e" path="res://portraits/pokemon/0001.png" id="5_yj4d2"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_uyk8v"]
-atlas = ExtResource("4_ps73o")
+atlas = ExtResource("5_yj4d2")
 region = Rect2(0, 0, 40, 40)
 
 [node name="UI TextBox" type="Node2D"]
@@ -27,8 +27,7 @@ scale = Vector2(0.1, 0.1)
 theme_override_fonts/normal_font = ExtResource("3_1pcfa")
 theme_override_font_sizes/normal_font_size = 120
 bbcode_enabled = true
-text = "His name is [color=yellow]Shithead[color=white] and he's a single celled organism
-lel"
+text = "His name is [color=yellow]Shithead[color=white] and he's a single celled organism"
 scroll_active = false
 autowrap_mode = 2
 
@@ -58,4 +57,4 @@ offset_left = -8.0
 offset_top = -7.0
 offset_right = 1160.0
 offset_bottom = 656.0
-color = Color(0, 0, 0, 1)
+color = Color(0, 0, 0, 0)

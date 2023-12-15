@@ -1,10 +1,11 @@
 <trigger load map beach>
 <trigger spawn chara partner>
-<move chara partner tp 0 0 0>
+<move chara partner 0 0 seconds 0>
+<camera move 0 0 seconds 0>
 <facing chara partner UP>
 <anim chara partner Idle>
 <trigger spawn chara player>
-<move chara player tp -20 0 0>
+<move chara player -20 0 seconds 0>
 <facing chara player RIGHT>
 <anim chara player Laying>
 <trigger fade in>
@@ -30,8 +31,8 @@ Someone's over there!
 <await>
 <trigger textbox inactive>
 <async>
-	<camera pan -19 0 4>
-	<move chara partner walk -18 0 4>
+	<camera move -19 0 seconds 4>
+	<move chara partner -18 0 seconds 4>
 </async>
 <wait seconds 5>
 <trigger textbox active>
@@ -174,4 +175,3 @@ It's nice to meet you,
 <name player>
 !
 <await>
-

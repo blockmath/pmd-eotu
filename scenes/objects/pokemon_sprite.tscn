@@ -1,11 +1,11 @@
 [gd_scene load_steps=4 format=3 uid="uid://d1r60amai1w6r"]
 
-[ext_resource type="Texture2D" uid="uid://v0vmxni2sxx3" path="res://sprites/pokemon/0447/Idle-Anim.png" id="1_wdate"]
+[ext_resource type="Texture2D" uid="uid://cxgkxqrpeyw23" path="res://sprites/pokemon/0447/Idle-Anim.png" id="1_axjfj"]
 [ext_resource type="Script" path="res://scripts/PokemonSprite.gd" id="2_7t014"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_sd5oj"]
-atlas = ExtResource("1_wdate")
-region = Rect2(0, 160, 128, 32)
+atlas = ExtResource("1_axjfj")
+region = Rect2(0, 0, 128, 32)
 
 [node name="PokemonSprite" type="Node3D"]
 

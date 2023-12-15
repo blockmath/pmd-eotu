@@ -1021,32 +1021,52 @@ const pkmnNames = [
 
 
 
-static var playerPkmn : int = 447; # MAKE SURE TO REMOVE THIS WHEN WE ADD PERSONALITY TEST AND STUFF
-static var playerGender : Classes.Gender = Classes.Gender.MALE; # AND THIS
-static var playerName : String = "Player"; # AS WELL AS THIS
-static var partnerPkmn : int = 403; # THIS TOO
-static var partnerGender : Classes.Gender = Classes.Gender.FEMALE; # POTATO
-static var partnerName : String = "Partner"; # DONUTS
 
+
+static var locale : String = "english"; # locale for text
+
+static var pronouns : Dictionary = {};
 
 # Should probably put all the player+partner pokemon data in globals. Too bad!
-static var globals : Dictionary = {};
+static var globals : Dictionary = {
+	"playerPkmn": 447, # MAKE SURE TO REMOVE THIS WHEN WE ADD PERSONALITY TEST AND STUFF
+	"playerGender": Classes.Gender.MALE, # AND THIS
+	"playerName": "Devin", # AS WELL AS THIS
+	"partnerPkmn": 403, # THIS TOO
+	"partnerGender": Classes.Gender.FEMALE, # POTATO
+	"partnerName": "Sam", # DONUTS
+};
+
+static func loadLocale(_locale : String):
+	DataManager.locale = _locale;
+	var pronounData = FileAccess.get_file_as_string("dialog/" + DataManager.locale + "/pronouns.inf").split("\n");
+	pronouns = {
+		Classes.Gender.MALE: pronounData[0].split(" "),
+		Classes.Gender.FEMALE: pronounData[1].split(" "),
+		Classes.Gender.NONBINARY: pronounData[2].split(" "),
+		Classes.Gender.NEUTER: pronounData[3].split(" ")
+	};
 
 static func lookup(type : String, value):
 	if type == "pkmn-id":
 		if value is int:
 			return value;
 		elif value == "player":
-			return playerPkmn;
+			return globals["playerPkmn"];
 		elif value == "partner":
-			return partnerPkmn;
+			return globals["partnerPkmn"];
 		else:
 			for i in range(len(pkmnNames)):
 				if (pkmnNames[i].nocasecmp_to(value.replacen("-", " ")) == 0):
 					return i;
 	elif type == "pkmn-is-asym":
 		var tex : Texture2D = load("res://portraits/pokemon/%04d.png".format(lookup("pkmn-id", value)));
-		return tex.get_pixel(0,160).a != 0.0;
+		return (tex.get_pixel(0,160).a != 0.0);
+	elif type == "gender":
+		if value == "player":
+			return globals["playerGender"];
+		elif value == "partner":
+			return globals["partnerGender"];
 
 
 # Called when the node enters the scene tree for the first time.

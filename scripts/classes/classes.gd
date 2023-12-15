@@ -16,7 +16,8 @@ enum Direction {
 enum Gender {
 	MALE, # he/him/his
 	FEMALE, # she/her/hers
-	NONBINARY # they/them/theirs
+	NONBINARY, # they/them/theirs
+	NEUTER # it/it/its
 }
 
 # Called when the node enters the scene tree for the first time.

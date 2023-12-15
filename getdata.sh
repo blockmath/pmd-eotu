@@ -1,3 +1,12 @@
+# Metadata and variables
+nPoke=1017 # how many pokemon are there, by dex number, that we want to get
+
+bold=$(tput bold)
+normal=$(tput normal)
+
+# Record timing data
+start=`date +%s`
+
 # Cleanup residual data
 rm -rf sprites/pokemon/
 rm -rf portraits/pokemon/
@@ -7,7 +16,7 @@ mkdir sprites/pokemon
 mkdir portraits/pokemon
 
 # Seek out all pokemon on pmdcollab
-for i in {0..1017}; do
+for i in $(seq 0 $nPoke); do
 	printf -v prl "https://spriteserver.pmdcollab.org/assets/portrait-%04d.png" $i
 	printf -v url "https://spriteserver.pmdcollab.org/assets/%04d/sprites.zip" $i
 	printf -v pnam "portraits/pokemon/%04d.png" $i
@@ -16,5 +25,10 @@ for i in {0..1017}; do
 	curl $url --output 'sprites.zip'
 	unzip 'sprites.zip' -d $fnam
 	mv $fnam "sprites/pokemon/$fnam"
-	echo "Downloaded pokemon #$i"
+	echo $bold "Downloaded pokemon #$i of $nPoke" $normal
 done
+rm sprites.zip
+
+# Report timing data
+end=`date +%s`
+echo $bold Operation finished in `expr $end - $start` seconds. $normal

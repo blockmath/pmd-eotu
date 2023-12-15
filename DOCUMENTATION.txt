@@ -1,0 +1,6 @@
+
+
+
+
+
+Note: For the LOVE OF ARCEUS, do not put a <choicer>, <entry>, <await>, or any other input waiter inside an <async>. The game will skip a bunch of important stuff and can in some cases reach the wrong endpoint, softlock the cutscene, or even crash.
