@@ -155,12 +155,15 @@ func runDialog(line : String):
 			["name", var chara]:
 				var text : String;
 				if chara == "player":
+					textboxLabel.append_text("[color=yellow]");
 					text = DataManager.globals["playerName"];
 				elif chara == "partner":
+					textboxLabel.append_text("[color=yellow]");
 					text = DataManager.globals["partnerName"];
 				else:
+					textboxLabel.append_text("[color=blue]");
 					text = DataManager.pkmnNames[DataManager.lookup("pkmn-id", chara)];
-				textboxLabel.append_text("[color=yellow]");
+				
 				for ch in text:
 					textboxLabel.append_text(ch);
 					if not Input.is_action_pressed("B"):
