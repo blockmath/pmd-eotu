@@ -64,6 +64,16 @@ func _input(event):
 	if (event.is_action_pressed("A")):
 		advanceDialog.emit();
 
+func passesExpression(value1, relationOp, value2):
+	match relationOp:
+		"eq":
+			return (value1 == value2);
+		"lt":
+			return (value1 < value2);
+		"gt":
+			return (value1 > value2);
+		_:
+			return false;
 
 func playCutscene(cutName : String):
 	playCutsceneAsync(cutName);
@@ -86,6 +96,7 @@ func playCutsceneAsync(cutName : String):
 			runDialog(cutscene[cutsceneIndex]);
 		else:
 			await runDialog(cutscene[cutsceneIndex]);
+		cutsceneIndex += 1;
 	pass
 
 func runDialog(line : String):
@@ -131,6 +142,9 @@ func runDialog(line : String):
 				keepGoing = false;
 			["branch", var branchTarget]:
 				cutsceneIndex = cutscene.find("<label " + branchTarget + ">") - 1;
+			["if", "global", var variable, var relationOp, var value, "then", "branch", var branchTarget]:
+				if passesExpression(DataManager.globals[variable], relationOp, int(value) if value.is_valid_int() else value):
+					cutsceneIndex = cutscene.find("<label " + branchTarget + ">") - 1;
 			["label", var _label]:
 				pass
 			["camera", "move", var dx, var dy, "seconds", var dt]:
@@ -207,7 +221,6 @@ func runDialog(line : String):
 			textboxLabel.append_text(ch);
 			if not Input.is_action_pressed("B"):
 				await nextFrame;
-	cutsceneIndex += 1;
 
 
 # Called when the node enters the scene tree for the first time.
