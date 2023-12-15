@@ -16,5 +16,5 @@ for i in {0..1017}; do
 	curl $url --output 'sprites.zip'
 	unzip 'sprites.zip' -d $fnam
 	mv $fnam "sprites/pokemon/$fnam"
-	echo $i
+	echo "Downloaded pokemon #$i"
 done
