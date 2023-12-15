@@ -84,6 +84,9 @@ I'm
 <name partner>
 .
 <await>
+<trigger textbox inactive>
+<wait seconds 1>
+<trigger textbox active>
 <portrait right partner worried>
 Who are you?
 <n>
