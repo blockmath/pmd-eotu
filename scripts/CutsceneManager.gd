@@ -49,7 +49,8 @@ var colorRect : ColorRect = $"ColorRect";
 var actors : Dictionary = {
 	"chara": get_tree().find_node("chara-root"),
 	"player": get_tree().find_node("player-root"),
-	"poke": get_tree().find_node("poke-root")
+	"poke": get_tree().find_node("poke-root"),
+	"world": get_tree().find_node("world-root")
 }
 
 var cutsceneName : String;
@@ -64,6 +65,11 @@ func _input(event):
 	if (event.is_action_pressed("A")):
 		advanceDialog.emit();
 
+func clear_node_children(node : Node):
+	for n in node.get_children():
+		node.remove_child(n);
+		n.queue_free();
+
 func passesExpression(value1, relationOp, value2):
 	match relationOp:
 		"eq":
@@ -72,6 +78,8 @@ func passesExpression(value1, relationOp, value2):
 			return (value1 < value2);
 		"gt":
 			return (value1 > value2);
+		"ne":
+			return (value1 != value2);
 		_:
 			return false;
 
@@ -105,6 +113,7 @@ func runDialog(line : String):
 	if (line.begins_with('<')):
 		# Command
 		var command = line.substr(1, line.find('>')).split(' ', false);
+		print_debug(str(command));
 		match command:
 			["portrait", "none"]:
 				pbl.visible = false;
@@ -117,7 +126,7 @@ func runDialog(line : String):
 					pkmn = DataManager.lookup("pkmn-id", chara);
 				pbr.visible = false;
 				pl.texture.atlas = load("res://portraits/pokemon/%04d.png".format(pkmn));
-				pl.texture.region = Rect2((expressions.find(expression) % 5) * 40, floor(expressions.find(expression) / 5) * 40, 40, 40);
+				pl.texture.region = Rect2((expressions.find(expression) % 5) * 40, floor(expressions.find(expression) / 5.0) * 40, 40, 40);
 				pbl.visible = true;
 			["portrait", "right", var chara, var expression]:
 				var pkmn : int;
@@ -128,7 +137,7 @@ func runDialog(line : String):
 				pbl.visible = false;
 				pr.texture.atlas = load("res://portraits/pokemon/%04d.png".format(pkmn));
 				var is_asym : bool = DataManager.lookup("pkmn-is-asym", pkmn);
-				pr.texture.region = Rect2((expressions.find(expression) % 5) * 40, floor(expressions.find(expression) / 5) * (40 + (160 if is_asym else 0)), 40, 40);
+				pr.texture.region = Rect2((expressions.find(expression) % 5) * 40, floor(expressions.find(expression) / 5.0) * (40 + (160 if is_asym else 0)), 40, 40);
 				pr.flip_h = is_asym;
 				pbr.visible = true;
 			["await"]:
@@ -144,6 +153,9 @@ func runDialog(line : String):
 				cutsceneIndex = cutscene.find("<label " + branchTarget + ">") - 1;
 			["if", "global", var variable, var relationOp, var value, "then", "branch", var branchTarget]:
 				if passesExpression(DataManager.globals[variable], relationOp, int(value) if value.is_valid_int() else value):
+					cutsceneIndex = cutscene.find("<label " + branchTarget + ">") - 1;
+			["if", "compare", "global", var var1, var relationOp, "global", var var2, "then", "branch", var branchTarget]:
+				if passesExpression(DataManager.globals[var1], relationOp, DataManager.globals[var2]):
 					cutsceneIndex = cutscene.find("<label " + branchTarget + ">") - 1;
 			["label", var _label]:
 				pass
@@ -186,7 +198,7 @@ func runDialog(line : String):
 			["n"]:
 				textboxLabel.append_text("\n");
 			["gender", var chara, var case]:
-				textboxLabel.append_text(DataManager.pronouns[DataManager.lookup("gender", chara)][case]);
+				textboxLabel.append_text(DataManager.pronouns[DataManager.lookup("gender", chara)][int(case)]);
 			["wait", "frames", var nframes]:
 				for i in range(nframes):
 					await nextFrame;
@@ -200,9 +212,20 @@ func runDialog(line : String):
 				DataManager.globals[variable] += 1;
 			["trigger", "decrement", "global", var variable]:
 				DataManager.globals[variable] -= 1;
+			["trigger", "clear", "actors", var actorType]:
+				clear_node_children(actors[actorType]);
+			["trigger", "spawn", var actorType, var id]:
+				var obj = load("res://scenes/objects/pokemon_sprite.tscn").instance();
+				var objScript = obj.find_children()[0];
+				objScript.setPokemon("%04d".format(DataManager.lookup("pkmn-id", id)));
+				objScript.setActorType(actorType);
+				actors[actorType].add_child(obj);
 			["trigger", "load", "map", var mapName]:
-				get_tree().change_scene_to_file("res://scenes/scenes/%s.tscn".format(mapName));
 				colorRect.color.a = 255;
+				clear_node_children(actors["chara"]);
+				clear_node_children(actors["world"]);
+				var mapScene = load("res://scenes/scenes/%s.tscn".format(mapName)).instance();
+				actors["world"].add_child(mapScene);
 			["trigger", "fade", "in"]:
 				for i in range(0, 256, 4):
 					colorRect.color.a = 255 - i;
@@ -229,7 +252,7 @@ func _ready():
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	nextFrame.emit();
 	
 	pass

@@ -14,10 +14,6 @@ config/name="Pokemon Mystery Dungeon: Explorers of the Universe"
 config/features=PackedStringArray("4.1", "Forward Plus")
 config/icon="res://icon.svg"
 
-[autoload]
-
-Global="*res://scenes/global.tscn"
-
 [importer_defaults]
 
 texture={

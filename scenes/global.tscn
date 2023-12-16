@@ -1,13 +1,16 @@
-[gd_scene load_steps=3 format=3 uid="uid://b6i83iip0drde"]
+[gd_scene load_steps=4 format=3 uid="uid://b6i83iip0drde"]
 
 [ext_resource type="PackedScene" uid="uid://m536g6fsgoa8" path="res://scenes/objects/textbox.tscn" id="1_wj78e"]
 [ext_resource type="PackedScene" uid="uid://rl6p3mb6mjon" path="res://scenes/objects/data_manager.tscn" id="2_38tlb"]
+[ext_resource type="PackedScene" uid="uid://mxg6xmvkor0i" path="res://scenes/objects/music_manager.tscn" id="3_573f7"]
 
 [node name="Node" type="Node"]
 
 [node name="UI TextBox" parent="." instance=ExtResource("1_wj78e")]
 
 [node name="DataManager" parent="." instance=ExtResource("2_38tlb")]
+
+[node name="MusicManager" parent="." instance=ExtResource("3_573f7")]
 
 [node name="Camera" type="Camera3D" parent="."]
 
@@ -16,3 +19,5 @@
 [node name="player-root" type="Node3D" parent="."]
 
 [node name="poke-root" type="Node3D" parent="."]
+
+[node name="world-root" type="Node3D" parent="."]

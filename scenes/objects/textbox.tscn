@@ -13,6 +13,13 @@ region = Rect2(0, 0, 40, 40)
 [node name="UI TextBox" type="Node2D"]
 script = ExtResource("1_eg4ch")
 
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_left = -8.0
+offset_top = -7.0
+offset_right = 1160.0
+offset_bottom = 656.0
+color = Color(0, 0, 0, 0)
+
 [node name="Textbox" type="Sprite2D" parent="."]
 position = Vector2(576, 544)
 scale = Vector2(3.09822, 3.09822)
@@ -51,10 +58,3 @@ position = Vector2(0, 3.7998e-06)
 scale = Vector2(1, 1.02431)
 texture = SubResource("AtlasTexture_uyk8v")
 flip_h = true
-
-[node name="ColorRect" type="ColorRect" parent="."]
-offset_left = -8.0
-offset_top = -7.0
-offset_right = 1160.0
-offset_bottom = 656.0
-color = Color(0, 0, 0, 0)

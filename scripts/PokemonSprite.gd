@@ -5,6 +5,7 @@ const Classes = preload("res://scripts/classes/classes.gd");
 @onready
 var sprite : Sprite3D = $"Sprite3D";
 
+var actorType : String;
 var pokemonID : String;
 var animID : String;
 
@@ -42,7 +43,9 @@ func setPokemon(poke : String):
 	# TODO: load AnimData.xml into currentAnim
 	var file = [FileAccess.get_file_as_string("res://sprites/pokemon/%s/AnimData.xml".format(pokemonID))];
 	var dataPath = [];
-	
+
+func setActorType(_actorType : String):
+	actorType = _actorType;
 
 func setAnimation(anim : String):
 	animID = anim;
