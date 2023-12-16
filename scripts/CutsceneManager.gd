@@ -2,6 +2,7 @@ extends Node2D
 
 const DataManager = preload("res://scripts/DataManager.gd");
 const Classes = preload("res://scripts/classes/classes.gd");
+const MusicManager = preload("res://scripts/MusicManager.gd");
 
 signal nextFrame;
 signal advanceDialog;
@@ -43,6 +44,8 @@ var pbr : Sprite2D = $"Textbox/Portrait box (right)";
 var pr : Sprite2D = $"Textbox/Portrait box (right)/Portrait";
 @onready
 var camera : Camera3D = get_tree().find_node("Camera");
+@onready
+var musicManager : MusicManager = get_tree().find_node("MusicManager");
 @onready
 var colorRect : ColorRect = $"ColorRect";
 @onready
@@ -189,12 +192,13 @@ func runDialog(line : String):
 				else:
 					textboxLabel.append_text("[color=blue]");
 					text = DataManager.pkmnNames[DataManager.lookup("pkmn-id", chara)];
-				
 				for ch in text:
 					textboxLabel.append_text(ch);
 					if not Input.is_action_pressed("B"):
 						await nextFrame;
 				textboxLabel.append_text("[color=white]");
+			["space"]:
+				textboxLabel.append_text(" ");
 			["n"]:
 				textboxLabel.append_text("\n");
 			["gender", var chara, var case]:
@@ -244,6 +248,7 @@ func runDialog(line : String):
 			textboxLabel.append_text(ch);
 			if not Input.is_action_pressed("B"):
 				await nextFrame;
+	pass
 
 
 # Called when the node enters the scene tree for the first time.
