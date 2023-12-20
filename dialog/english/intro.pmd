@@ -7,7 +7,7 @@
 <trigger spawn chara player>
 <move chara player -20 0 seconds 0>
 <facing chara player RIGHT>
-<anim chara player Laying>
+<anim chara player Laying loop>
 <trigger fade in>
 <wait seconds 2>
 <trigger textbox active>

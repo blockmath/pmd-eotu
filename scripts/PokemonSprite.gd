@@ -2,6 +2,8 @@ extends Sprite3D
 
 const Classes = preload("res://scripts/classes/classes.gd");
 
+signal nextAnimFrame;
+
 @onready
 var sprite : Sprite3D = $"Sprite3D";
 
@@ -13,46 +15,57 @@ var animDir : Classes.Direction;
 var frameIndex : int;
 
 var animOffsets : Texture2D;
+var animShadow : Texture2D;
 
+var animData : Dictionary;
 var currentAnim : Dictionary;
 
-func xmlTok(xml : Array): # [String]
-	var token;
-	var endIndex;
-	if xml[0][0] == '<':
-		endIndex = xml[0].find('>');
-	else:
-		endIndex = min(xml[0].find('<'), xml[0].find(' '), xml[0].find('\t')) - 1;
-	token = xml[0].substr(0, endIndex);
-	xml[0] = xml[0].substr(endIndex + 1);
-	while xml[0].begins_with(' ') or xml[0].begins_with('\t'):
-		xml[0] = xml[0].substr(1);
-	return token;
+var animRect : Rect2;
 
-func addDataAtPath(path : Array, data): # path = [path, to, data] (/path/to/data)
-	var pwd : Dictionary = currentAnim;
-	while len(path) > 1:
-		if path[0] not in pwd:
-			pwd[path[0]] = {};
-		pwd = pwd[path[0]];
-		path.pop_front();
-	pwd[path[0]] = data;
+var animFrames : Array;
+
 
 func setPokemon(poke : String):
 	pokemonID = poke;
-	# TODO: load AnimData.xml into currentAnim
-	var file = [FileAccess.get_file_as_string("res://sprites/pokemon/%s/AnimData.xml".format(pokemonID))];
-	var dataPath = [];
+	var expression = Expression.new();
+	expression.parse(FileAccess.get_file_as_string("res://sprites/pokemon/%s/AnimData.json" % [pokemonID]));
+	animData = expression.execute();
 
 func setActorType(_actorType : String):
 	actorType = _actorType;
 
-func setAnimation(anim : String):
-	animID = anim;
-	sprite.texture.atlas = load("res://sprites/pokemon/%s/%s-Anim.png".format(pokemonID, animID));
-	animOffsets = load("res://sprites/pokemon/%s/%s-Offsets.png".format(pokemonID, animID));
-	frameIndex = 0;
+func _findAnim():
+	for animDict in animData["Anims"]:
+		if animDict["Name"] == animID:
+			currentAnim = animDict;
+			if "CopyOf" in currentAnim.keys():
+				animID = currentAnim["CopyOf"];
+				_findAnim();
+			return;
 
+func setAnimation(anim : String, shouldLoop : bool):
+	animID = anim;
+	_findAnim();
+	sprite.texture.atlas = load("res://sprites/pokemon/%s/%s-Anim.png" % [pokemonID, animID]);
+	sprite.hframes = len(currentAnim["Durations"]);
+	sprite.vframes = 1;
+	animOffsets = load("res://sprites/pokemon/%s/%s-Offsets.png" % [pokemonID, animID]);
+	animShadow = load("res://sprites/pokemon/%s/%s-Shadow.png" % [pokemonID, animID]);
+	frameIndex = 0;
+	animFrames = [];
+	for i in range(len(currentAnim["Durations"])):
+		for j in range(currentAnim["Durations"][i]):
+			animFrames.append(i);
+	while frameIndex < len(animFrames):
+		sprite.frame = animFrames[frameIndex];
+		frameIndex += 1;
+		if frameIndex >= len(animFrames) and shouldLoop:
+			frameIndex = 0;
+		await nextAnimFrame;
+
+func setDirection(dir : Classes.Direction):
+	animRect = Rect2(0, int(currentAnim["FrameHeight"]) * int(dir), int(currentAnim["FrameWidth"]) * len(currentAnim["Durations"]), int(currentAnim["FrameHeight"]));
+	sprite.texture.region = animRect;
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -60,6 +73,6 @@ func _ready():
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	
+func _process(_delta):
+	nextAnimFrame.emit();
 	pass

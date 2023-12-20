@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://daj4xt40nv50" path="res://sprites/ui/text-box.png" id="2_t3siu"]
 [ext_resource type="FontFile" uid="uid://cfmit71j0p4ro" path="res://sprites/ui/Inconsolata-Bold.ttf" id="3_1pcfa"]
 [ext_resource type="Texture2D" uid="uid://bc8bffj2cqekf" path="res://sprites/ui/portrait-box.png" id="3_5n3jo"]
-[ext_resource type="Texture2D" uid="uid://6818p8w6jd6e" path="res://portraits/pokemon/0001.png" id="5_yj4d2"]
+[ext_resource type="Texture2D" uid="uid://cclo7webv640o" path="res://portraits/pokemon/0001.png" id="5_yj4d2"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_uyk8v"]
 atlas = ExtResource("5_yj4d2")

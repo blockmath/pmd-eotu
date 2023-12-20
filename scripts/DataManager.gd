@@ -1060,7 +1060,7 @@ static func lookup(type : String, value):
 				if (pkmnNames[i].nocasecmp_to(value.replacen("-", " ")) == 0):
 					return i;
 	elif type == "pkmn-is-asym":
-		var tex : Texture2D = load("res://portraits/pokemon/%04d.png".format(lookup("pkmn-id", value)));
+		var tex : Texture2D = load("res://portraits/pokemon/%04d.png" % lookup("pkmn-id", value));
 		return (tex.get_pixel(0,160).a != 0.0);
 	elif type == "gender":
 		if value == "player":

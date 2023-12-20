@@ -59,6 +59,8 @@ var actors : Dictionary = {
 var cutsceneName : String;
 var cutscene : Array; # Array<String>
 
+var cutsceneQueued;
+
 var cutsceneRunning : bool;
 var cutsceneIndex : int;
 
@@ -128,7 +130,7 @@ func runDialog(line : String):
 				else:
 					pkmn = DataManager.lookup("pkmn-id", chara);
 				pbr.visible = false;
-				pl.texture.atlas = load("res://portraits/pokemon/%04d.png".format(pkmn));
+				pl.texture.atlas = load("res://portraits/pokemon/%04d.png" % pkmn);
 				pl.texture.region = Rect2((expressions.find(expression) % 5) * 40, floor(expressions.find(expression) / 5.0) * 40, 40, 40);
 				pbl.visible = true;
 			["portrait", "right", var chara, var expression]:
@@ -138,7 +140,7 @@ func runDialog(line : String):
 				else:
 					pkmn = DataManager.lookup("pkmn-id", chara);
 				pbl.visible = false;
-				pr.texture.atlas = load("res://portraits/pokemon/%04d.png".format(pkmn));
+				pr.texture.atlas = load("res://portraits/pokemon/%04d.png" % pkmn);
 				var is_asym : bool = DataManager.lookup("pkmn-is-asym", pkmn);
 				pr.texture.region = Rect2((expressions.find(expression) % 5) * 40, floor(expressions.find(expression) / 5.0) * (40 + (160 if is_asym else 0)), 40, 40);
 				pr.flip_h = is_asym;
@@ -147,7 +149,9 @@ func runDialog(line : String):
 				await advanceDialog;
 				textboxLabel.clear();
 			["anim", var type, var actor, var anim]:
-				actors[type].find_node(actor).setAnimation(anim);
+				actors[type].find_node(actor).setAnimation(anim, false);
+			["anim", var type, var actor, var anim, "loop"]:
+				actors[type].find_node(actor).setAnimation(anim, true);
 			["async"]:
 				keepGoing = true;
 			["/async"]:
@@ -173,14 +177,13 @@ func runDialog(line : String):
 				actor.animDir = dir;
 			["move", var type, var actorName, var dx, var dy, "seconds", var dt]:
 				var actor : Node3D = actors[type].find_node(actorName);
-				var storedAnim : String = actor.animID;
-				actor.setAnimation("Walk");
+				actor.setAnimation("Walk", true);
 				var dt_frames : float = dt * Engine.get_frames_per_second();
 				for i in range(int(dt_frames)):
 					actor.transform = actor.transform.translated(Vector3(float(dx) / dt_frames, 0, float(dy) / dt_frames));
 					await nextFrame;
 				actor.transform = actor.transform.translated(Vector3(float(dx), 0, float(dy)));
-				actor.setAnimation(storedAnim);
+				actor.setAnimation("Idle", false);
 			["name", var chara]:
 				var text : String;
 				if chara == "player":
@@ -221,15 +224,19 @@ func runDialog(line : String):
 			["trigger", "spawn", var actorType, var id]:
 				var obj = load("res://scenes/objects/pokemon_sprite.tscn").instance();
 				var objScript = obj.find_children()[0];
-				objScript.setPokemon("%04d".format(DataManager.lookup("pkmn-id", id)));
+				objScript.setPokemon("%04d" % DataManager.lookup("pkmn-id", id));
 				objScript.setActorType(actorType);
+				obj.set_name(id);
 				actors[actorType].add_child(obj);
 			["trigger", "load", "map", var mapName]:
 				colorRect.color.a = 255;
 				clear_node_children(actors["chara"]);
 				clear_node_children(actors["world"]);
-				var mapScene = load("res://scenes/scenes/%s.tscn".format(mapName)).instance();
+				var mapScene = load("res://scenes/scenes/%s.tscn" % mapName).instance();
 				actors["world"].add_child(mapScene);
+			["trigger", "cutscene", var nextCutscene]:
+				cutsceneQueued = nextCutscene;
+				cutsceneRunning = false;
 			["trigger", "fade", "in"]:
 				for i in range(0, 256, 4):
 					colorRect.color.a = 255 - i;
@@ -259,5 +266,7 @@ func _ready():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
 	nextFrame.emit();
-	
+	if cutsceneQueued != null:
+		playCutscene(cutsceneQueued);
+		cutsceneQueued = null;
 	pass

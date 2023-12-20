@@ -1,8 +1,8 @@
 # Metadata and variables
 nPoke=1017 # how many pokemon are there, by dex number, that we want to get
 
-bold=$(tput bold)
-normal=$(tput normal)
+bold=$(tput smso)
+normal=$(tput rmso)
 
 # Record timing data
 start=`date +%s`
@@ -28,6 +28,10 @@ for i in $(seq 0 $nPoke); do
 	echo $bold "Downloaded pokemon #$i of $nPoke" $normal
 done
 rm sprites.zip
+
+# Reinterpret animation XMLs as JSON/Python compliant dictionaries
+echo $bold Reinterpreting XML files... $normal
+python3 animparse.py 
 
 # Report timing data
 end=`date +%s`
