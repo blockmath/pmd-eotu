@@ -1,1 +1,5 @@
 To get started, run getdata.sh to download all copyright protected assets into the project. This will take several minutes.
+Godot will also have to import the assets. This will also take several minutes.
+(Please note that getdata.sh will cleanup [read: rm -rf] the directories it updates.)
+
+Note: what Github says is XML is actually cutscene dialog files (.pmd) masquerading as XML because that's the best syntax highlighting for them.
