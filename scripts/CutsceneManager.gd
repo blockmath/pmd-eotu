@@ -152,6 +152,8 @@ func runDialog(line : String):
 				actors[type].find_node(actor).setAnimation(anim, false);
 			["anim", var type, var actor, var anim, "loop"]:
 				actors[type].find_node(actor).setAnimation(anim, true);
+			["anim", var type, var actor, var anim, "await"]:
+				await actors[type].find_node(actor).setAnimation(anim, false);
 			["async"]:
 				keepGoing = true;
 			["/async"]:
