@@ -1,6 +1,6 @@
 extends Node2D
 
-const DataManager = preload("res://scripts/DataManager.gd");
+
 const Classes = preload("res://scripts/classes/classes.gd");
 const MusicManager = preload("res://scripts/MusicManager.gd");
 
@@ -29,6 +29,9 @@ const expressions = [
 	"special2",
 	"special3"
 ]
+
+@onready
+var dataManager : DataManager = get_tree().find_node("DataManager");
 
 @onready
 var textboxObj : Node2D = $Textbox;
@@ -67,7 +70,7 @@ var cutsceneIndex : int;
 var keepGoing : bool;
 
 func _input(event):
-	if (event.is_action_pressed("A")):
+	if (event.is_action_pressed("A") or event.is_action_pressed("B")):
 		advanceDialog.emit();
 
 func clear_node_children(node : Node):
@@ -88,13 +91,18 @@ func passesExpression(value1, relationOp, value2):
 		_:
 			return false;
 
-func playCutscene(cutName : String):
-	playCutsceneAsync(cutName);
+func playScene(sceneName : String):
+	playCutsceneAsync("res://scenes/setups/" + sceneName + ".pmd");
 
-func playCutsceneAsync(cutName : String):
+func playCutscene(cutName : String):
 	cutsceneName = cutName;
+	playCutsceneAsync("res://dialog/" + dataManager.locale + "/" + cutName + ".pmd");
+
+func playCutsceneAsync(cutPath : String):
+	if not FileAccess.file_exists(cutPath):
+		return;
 	# Preloading cutscene
-	var file = FileAccess.get_file_as_string("dialog/" + DataManager.locale + "/" + cutName + ".pmd"); # load cutscene from file
+	var file = FileAccess.get_file_as_string(cutPath); # load cutscene from file
 	cutscene = file.split("\n"); # Split on newlines
 	for lineIndex in range(len(cutscene)): # Strip leading whitespace
 		while cutscene[lineIndex].begins_with(' ') or cutscene[lineIndex].begins_with('\t'):
@@ -120,6 +128,8 @@ func runDialog(line : String):
 		var command = line.substr(1, line.find('>')).split(' ', false);
 		print_debug(str(command));
 		match command:
+			["halt"]:
+				cutsceneRunning = false;
 			["portrait", "none"]:
 				pbl.visible = false;
 				pbr.visible = false;
@@ -128,7 +138,7 @@ func runDialog(line : String):
 				if chara.is_valid_int():
 					pkmn = int(chara);
 				else:
-					pkmn = DataManager.lookup("pkmn-id", chara);
+					pkmn = dataManager.lookup("pkmn-id", chara);
 				pbr.visible = false;
 				pl.texture.atlas = load("res://portraits/pokemon/%04d.png" % pkmn);
 				pl.texture.region = Rect2((expressions.find(expression) % 5) * 40, floor(expressions.find(expression) / 5.0) * 40, 40, 40);
@@ -138,10 +148,10 @@ func runDialog(line : String):
 				if chara.is_valid_int():
 					pkmn = int(chara);
 				else:
-					pkmn = DataManager.lookup("pkmn-id", chara);
+					pkmn = dataManager.lookup("pkmn-id", chara);
 				pbl.visible = false;
 				pr.texture.atlas = load("res://portraits/pokemon/%04d.png" % pkmn);
-				var is_asym : bool = DataManager.lookup("pkmn-is-asym", pkmn);
+				var is_asym : bool = dataManager.lookup("pkmn-is-asym", pkmn);
 				pr.texture.region = Rect2((expressions.find(expression) % 5) * 40, floor(expressions.find(expression) / 5.0) * (40 + (160 if is_asym else 0)), 40, 40);
 				pr.flip_h = is_asym;
 				pbr.visible = true;
@@ -161,10 +171,10 @@ func runDialog(line : String):
 			["branch", var branchTarget]:
 				cutsceneIndex = cutscene.find("<label " + branchTarget + ">") - 1;
 			["if", "global", var variable, var relationOp, var value, "then", "branch", var branchTarget]:
-				if passesExpression(DataManager.globals[variable], relationOp, int(value) if value.is_valid_int() else value):
+				if passesExpression(dataManager.getGlobal(variable), relationOp, int(value) if value.is_valid_int() else value):
 					cutsceneIndex = cutscene.find("<label " + branchTarget + ">") - 1;
 			["if", "compare", "global", var var1, var relationOp, "global", var var2, "then", "branch", var branchTarget]:
-				if passesExpression(DataManager.globals[var1], relationOp, DataManager.globals[var2]):
+				if passesExpression(dataManager.getGlobal(var1), relationOp, dataManager.getGlobal(var2)):
 					cutsceneIndex = cutscene.find("<label " + branchTarget + ">") - 1;
 			["label", var _label]:
 				pass
@@ -190,13 +200,13 @@ func runDialog(line : String):
 				var text : String;
 				if chara == "player":
 					textboxLabel.append_text("[color=yellow]");
-					text = DataManager.globals["playerName"];
+					text = dataManager.globals["playerName"];
 				elif chara == "partner":
 					textboxLabel.append_text("[color=yellow]");
-					text = DataManager.globals["partnerName"];
+					text = dataManager.globals["partnerName"];
 				else:
 					textboxLabel.append_text("[color=blue]");
-					text = DataManager.pkmnNames[DataManager.lookup("pkmn-id", chara)];
+					text = dataManager.pkmnNames[dataManager.lookup("pkmn-id", chara)];
 				for ch in text:
 					textboxLabel.append_text(ch);
 					if not Input.is_action_pressed("B"):
@@ -207,7 +217,7 @@ func runDialog(line : String):
 			["n"]:
 				textboxLabel.append_text("\n");
 			["gender", var chara, var case]:
-				textboxLabel.append_text(DataManager.pronouns[DataManager.lookup("gender", chara)][int(case)]);
+				textboxLabel.append_text(dataManager.pronouns[dataManager.lookup("gender", chara)][int(case)]);
 			["wait", "frames", var nframes]:
 				for i in range(nframes):
 					await nextFrame;
@@ -218,15 +228,15 @@ func runDialog(line : String):
 			["trigger", "textbox", var arg1]:
 				textboxObj.visible = (arg1 != "inactive");
 			["trigger", "increment", "global", var variable]:
-				DataManager.globals[variable] += 1;
+				dataManager.globals[variable] = dataManager.getGlobal(variable) + 1;
 			["trigger", "decrement", "global", var variable]:
-				DataManager.globals[variable] -= 1;
+				dataManager.globals[variable] = dataManager.getGlobal(variable) - 1;
 			["trigger", "clear", "actors", var actorType]:
 				clear_node_children(actors[actorType]);
 			["trigger", "spawn", var actorType, var id]:
 				var obj = load("res://scenes/objects/pokemon_sprite.tscn").instance();
 				var objScript = obj.find_children()[0];
-				objScript.setPokemon("%04d" % DataManager.lookup("pkmn-id", id));
+				objScript.setPokemon("%04d" % dataManager.lookup("pkmn-id", id));
 				objScript.setActorType(actorType);
 				obj.set_name(id);
 				actors[actorType].add_child(obj);
@@ -236,6 +246,11 @@ func runDialog(line : String):
 				clear_node_children(actors["world"]);
 				var mapScene = load("res://scenes/scenes/%s.tscn" % mapName).instance();
 				actors["world"].add_child(mapScene);
+				playScene(mapName);
+			["trigger", "load", "globals"]:
+				dataManager.loadGlobals();
+			["trigger", "save", "globals"]:
+				dataManager.saveGlobals();
 			["trigger", "cutscene", var nextCutscene]:
 				cutsceneQueued = nextCutscene;
 				cutsceneRunning = false;

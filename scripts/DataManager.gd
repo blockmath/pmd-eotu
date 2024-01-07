@@ -1,7 +1,6 @@
-extends Node
-class_name DataManager;
 
 const Classes = preload("res://scripts/classes/classes.gd");
+
 
 const pkmnNames = [
 	"MissingNo.", "Bulbasaur", "Ivysaur", "Venusaur", "Charmander", "Charmeleon",
@@ -1023,23 +1022,41 @@ const pkmnNames = [
 
 
 
-static var locale : String = "english"; # locale for text
+var locale : String = "english"; # locale for text
 
-static var pronouns : Dictionary = {};
+var pronouns : Dictionary = {};
 
 # Should probably put all the player+partner pokemon data in globals. Too bad!
-static var globals : Dictionary = {
+var globals : Dictionary = {
+	"fileExists": 1,
+	
 	"playerPkmn": 447, # MAKE SURE TO REMOVE THIS WHEN WE ADD PERSONALITY TEST AND STUFF
 	"playerGender": Classes.Gender.MALE, # AND THIS
 	"playerName": "Devin", # AS WELL AS THIS
 	"partnerPkmn": 403, # THIS TOO
 	"partnerGender": Classes.Gender.FEMALE, # POTATO
 	"partnerName": "Sam", # DONUTS
+	
+	"currentRoom": "",
 };
 
-static func loadLocale(_locale : String):
-	DataManager.locale = _locale;
-	var pronounData = FileAccess.get_file_as_string("dialog/" + DataManager.locale + "/pronouns.inf").split("\n");
+var locals : Dictionary = {};
+
+func getGlobal(name : String):
+	if name in globals.keys:
+		return globals[name];
+	else:
+		return 0;
+
+func getLocal(name : String):
+	if name in locals.keys:
+		return locals[name];
+	else:
+		return 0;
+
+func loadLocale(_locale : String):
+	locale = _locale;
+	var pronounData = FileAccess.get_file_as_string("dialog/" + locale + "/pronouns.inf").split("\n");
 	pronouns = {
 		Classes.Gender.MALE: pronounData[0].split(" "),
 		Classes.Gender.FEMALE: pronounData[1].split(" "),
@@ -1047,7 +1064,7 @@ static func loadLocale(_locale : String):
 		Classes.Gender.NEUTER: pronounData[3].split(" ")
 	};
 
-static func lookup(type : String, value):
+func lookup(type : String, value):
 	if type == "pkmn-id":
 		if value is int:
 			return value;
@@ -1068,6 +1085,29 @@ static func lookup(type : String, value):
 		elif value == "partner":
 			return globals["partnerGender"];
 
+const savePath : String = "user://file0.dat";
+
+func saveGlobals():
+	var saveFile = FileAccess.open(savePath, FileAccess.WRITE);
+	saveFile.store_line(JSON.stringify(globals));
+	saveFile.close();
+
+func loadGlobals():
+	if not FileAccess.file_exists(savePath):
+		globals = {};
+		return;
+	var saveFile = FileAccess.open(savePath, FileAccess.READ);
+	var jsonString = saveFile.get_line();
+	var json = JSON.new();
+	var parseResult = json.parse(jsonString);
+	if not parseResult == OK:
+		print_debug("Save file corrupt. (JSON error: " + json.get_error_message() + " in " + jsonString + " at line " + json.get_error_line() + ")");
+		globals = {};
+		return;
+	globals = json.get_data();
+
+func clearLocals():
+	locals = {};
 
 # Called when the node enters the scene tree for the first time.
 func _ready():

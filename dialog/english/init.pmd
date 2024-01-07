@@ -1,0 +1,14 @@
+<trigger load data>
+<if global fileExists eq 0 branch new_game>
+<trigger textbox active>
+You have existing save data.
+<n>
+Continue?
+<choicer>
+	<choice continue "Continue">
+	<choice new_game "New Game">
+</choicer>
+<label continue>
+<trigger load currentmap>
+<halt>
+<label new_game>
