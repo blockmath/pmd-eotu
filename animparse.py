@@ -17,7 +17,7 @@ def loadParseXML(filename : str):
     data = data.replace('</Durations>', ']')
     data = data.replace('<Duration>', '')
     data = data.replace('</Duration>', ',')
-    data = re.sub('<([^>]+)>(.*?)</[^>]+>', r'"\1": \2,', data)
+    data = re.sub(r'<([^>]+)>(.*?)</\1>', r'"\1": \2,', data)
     data = re.sub(', ]', ' ]', data)
     data = re.sub('"Name": ([^,]+)', r'"Name": "\1"', data)
     data = re.sub('"CopyOf": ([^,]+)', r'"CopyOf": "\1"', data)
